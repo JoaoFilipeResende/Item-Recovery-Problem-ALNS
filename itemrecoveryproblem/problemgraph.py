@@ -7,17 +7,17 @@ class ProblemGraph:
         self.number_nodes = None
         self.robot_capacity = None
         self.items = None
-        self.transitions = None
         self.number_edges = None
+        self.transitions = None
 
     def load_file(self, path):
         # File is case-insensitive, whitespace not significant, \r\n or \r or \n all accepted, empty lines are ignored
         file = open(path, "r").read().replace(" ", "").replace("\r\n", "\n").replace("\r", "\n").lower().split("\n")
         file = [x for x in file if x != ""]
 
-        if not re.match(r"nodes:\d+$", file[0]):
-            raise Exception('First line of instance file must be "Nodes: x" where "x" is the number of nodes besides '
-                            'the "base" node')
+        if not re.match(r"sites:\d+$", file[0]):
+            raise Exception('First line of instance file must be "Sites: x" where "x" is the number of sites besides '
+                            'the "base"')
         if not re.match(r"cargosize:\d+$", file[1]):
             raise Exception('Second line of instance file must be "CargoSize: x" where "x" is the maximum cargo '
                             'the robot can carry at any given time')
@@ -61,4 +61,17 @@ class ProblemGraph:
             raise Exception('Number of edges of the graph must be indicated after specifying the items at each node. '
                             'Format: "Edges: x"')
 
+        self.transitions = np.full((self.number_nodes, self.number_nodes), np.inf)
+
+        file_idx += 1
+        for x in range(0, self.number_edges):
+            line = file[file_idx + x]
+
+            if re.match("\d+,\d+:\d+$", line):
+                line = re.split(",|:", line)
+                if int(line[0]) > (self.number_nodes-1):
+                    raise Exception('Invalid edge. Node ' + line[0] + ' does not exist.')
+            else:
+                raise Exception('Invalid format for specifying an edge. Format: "x,y: z", where x and y'
+                                ' are nodes and z is the cost of the edge')
 
