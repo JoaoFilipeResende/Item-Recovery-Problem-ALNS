@@ -1,5 +1,5 @@
-from itemrecoveryproblem.problemgraph import ProblemGraph
+from itemrecoveryproblem.itemrecoveryproblem import ItemRecoveryProblem
 
 if __name__ == '__main__':
-    graph = ProblemGraph()
+    graph = ItemRecoveryProblem()
     graph.load_file("./instances/test_instance")

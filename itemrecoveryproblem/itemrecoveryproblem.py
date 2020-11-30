@@ -1,9 +1,12 @@
+from itemrecoveryproblem.graph import Graph
 import numpy as np
 import re
 
 
-class ProblemGraph:
+class ItemRecoveryProblem:
     def __init__(self):
+        self.graph = None
+
         self.number_nodes = None
         self.robot_capacity = None
         self.items = None
@@ -25,8 +28,9 @@ class ProblemGraph:
             raise Exception('Third line of instance file must be "NodesWithItems: x" where "x" is the number of nodes'
                             ' that contain items')
 
-        self.number_nodes = int(file[0][6:])
+        self.graph = Graph(int(file[0][6:]))
         self.robot_capacity = int(file[1][10:])
+
         nodes_with_items = int(file[2][15:])
 
         self.items = {}
