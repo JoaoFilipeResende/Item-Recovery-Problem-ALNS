@@ -1,12 +1,12 @@
 Sites: 6
 CargoSize: 6
-NodesWithItems: 5
+SitesWithItems: 5
 1: 2,3
-2: 5 
+2: 5
 3: 1,1,1,2
-5: 2, 3, 5, 1, 4
+5: 2,3,5,1,4
 6: 4
-Edges: 12
+Paths: 12
 0,1: 10
 0,2: 12
 0,3: 15
