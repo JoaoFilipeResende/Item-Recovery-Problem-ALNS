@@ -16,3 +16,6 @@ class Graph:
 
     def add_edge(self, node_a, node_b, cost):
         self.transitions[node_a, node_b] = cost
+
+    def edge_exists(self, node_a, node_b):
+        return self.transitions[node_a, node_b] != np.inf

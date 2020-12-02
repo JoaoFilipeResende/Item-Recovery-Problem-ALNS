@@ -74,10 +74,12 @@ class ItemRecoveryProblem:
                     raise Exception('Invalid path. Site ' + line[0] + ' does not exist.')
                 if int(line[1]) > number_of_sites:
                     raise Exception('Invalid path. Site ' + line[1] + ' does not exist.')
-
-                self.graph.add_edge(int(line[0]), int(line[1]), int(line[2]))
-                self.graph.add_edge(int(line[1]), int(line[0]), int(line[2]))
-
+                if not self.graph.edge_exists(int(line[0]), int(line[1])):
+                    self.graph.add_edge(int(line[0]), int(line[1]), int(line[2]))
+                    self.graph.add_edge(int(line[1]), int(line[0]), int(line[2]))
+                else:
+                    raise Exception(
+                        'Multiple declaration between site ' + line[0] + ' and ' + line[1] + '.')
             else:
                 raise Exception('Invalid format for specifying an edge. Format: "x,y: z", where x and y'
                                 ' are nodes and z is the cost of the edge')
