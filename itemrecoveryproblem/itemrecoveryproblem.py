@@ -86,3 +86,6 @@ class ItemRecoveryProblem:
 
         for site in range(0, number_of_sites + 1):
             self.graph.add_edge(site, site, 0)
+
+    def debug(self):
+        print(self.graph.shortest_path(1, 8))
