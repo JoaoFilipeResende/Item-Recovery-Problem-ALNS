@@ -1,4 +1,5 @@
 from itemrecoveryproblem.itemrecoveryproblem import ItemRecoveryProblem
+from itemrecoveryproblem.solution import Solution
 
 
 class Alns:
@@ -10,4 +11,8 @@ class Alns:
         return solution
 
     def initial_solution(self):
-        pass
+        solution = Solution()
+        while not solution.is_valid(self.item_recovery_problem):
+            pass
+
+        return solution

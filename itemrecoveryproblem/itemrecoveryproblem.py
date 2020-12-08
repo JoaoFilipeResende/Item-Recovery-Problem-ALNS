@@ -8,7 +8,7 @@ class ItemRecoveryProblem:
         self.graph = None
 
         self.number_nodes = None
-        self.robot_capacity = None
+        self.robot_cargo_size = None
         self.items = None
         self.number_edges = None
 
@@ -29,7 +29,7 @@ class ItemRecoveryProblem:
 
         number_of_sites = int(file[0][6:])
         self.graph = Graph(number_of_sites)
-        self.robot_capacity = int(file[1][10:])
+        self.robot_cargo_size = int(file[1][10:])
 
         sites_with_items = int(file[2][15:])
 
@@ -51,7 +51,7 @@ class ItemRecoveryProblem:
                 raise Exception('Invalid site ' + str(site_idx) + ' in item specification.')
 
             for item_size in line.split(":")[1].split(","):
-                if int(item_size) < self.robot_capacity:
+                if int(item_size) < self.robot_cargo_size:
                     self.graph.add_item_to_node(site_idx, int(item_size))
                 else:
                     raise Exception('Items cannot exceed the cargo capacity.')
@@ -87,5 +87,11 @@ class ItemRecoveryProblem:
         for site in range(0, number_of_sites + 1):
             self.graph.add_edge(site, site, 0)
 
-    def debug(self):
-        print(self.graph.shortest_path(1, 8))
+    def get_items_at_each_site(self):
+        return self.graph.get_items_at_nodes()
+
+    def get_robot_cargo_size(self):
+        return self.robot_cargo_size
+
+    def get_cost_between_adjacent_sites(self, site_a, site_b):
+        return self.graph.get_edge_cost(site_a, site_b)
