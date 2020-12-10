@@ -93,5 +93,6 @@ class ItemRecoveryProblem:
     def get_robot_cargo_size(self):
         return self.robot_cargo_size
 
+    # Returns None if sites are not connected
     def get_cost_between_adjacent_sites(self, site_a, site_b):
         return self.graph.get_edge_cost(site_a, site_b)

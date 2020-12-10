@@ -25,8 +25,13 @@ class Graph:
     def get_items_at_nodes(self):
         return self._items_at_nodes
 
+    # Returns None if nodes are not connected
     def get_edge_cost(self, node_a, node_b):
-        return self._edges[node_a, node_b]
+        cost = self._edges[node_a, node_b]
+        if cost == np.inf:
+            return None
+        else:
+            return cost
 
     def shortest_path(self, start, destination):
         shortest_dist = np.full(self._n_nodes, np.inf)
