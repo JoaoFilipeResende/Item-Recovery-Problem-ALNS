@@ -11,8 +11,11 @@ class Alns:
         return solution
 
     def initial_solution(self):
-        solution = Solution()
-        while not solution.is_valid(self.item_recovery_problem):
+        solution = Solution(self.item_recovery_problem)
+
+        sol_is_valid, index_of_error = solution.check_validity()
+
+        while not sol_is_valid:
             pass
 
         return solution

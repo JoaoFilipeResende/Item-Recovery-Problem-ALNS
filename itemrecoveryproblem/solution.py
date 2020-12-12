@@ -1,3 +1,5 @@
+import copy
+
 
 class Solution:
     def __init__(self, item_recovery_problem):
@@ -33,7 +35,8 @@ class Solution:
 
         self._solution_states.append(first_state)
 
-    # Returns a tuple of Bool, Index, where the bool indicates if the solution is valid.
+    # Returns a tuple of (Bool, Int), where the "Bool" indicates if the solution is valid, and "Int" is the index of
+    # the path where the first problem that makes the solution invalid occurs
     def check_validity(self):
         max_cargo = self._irp.get_robot_cargo_size()
 
@@ -49,7 +52,7 @@ class Solution:
                 return False, idx
             # Check for valid connection between sites
             if idx != 0:
-                if self._irp.get_cost_between_adjacent_sites(self.path[idx-1], self.path[idx]):
+                if self._irp.get_cost_between_adjacent_sites(self.path[idx - 1], self.path[idx]):
                     return False, idx
 
         # At the end of the solution, no items can remain on any site
@@ -68,76 +71,75 @@ class Solution:
     def get_cost(self):
         return self._solution_states[-1].accumulated_cost
 
-    # TODO: WIP
+    def get_path(self):
+        return self._path
+
+    # Items picked up at that given site are already excluded from the return of this function
+    def get_remaining_items_at_path_index(self, index):
+        return self._solution_states[index].remaining_items_per_site
+
+    def get_robot_cargo_at_path_index(self, index):
+        return self._solution_states[index].robot_cargo
+
+    def get_accumulated_cost_at_path_index(self, index):
+        return self._solution_states[index].accumulated_cost
+
     def insert_subpath(self, insertion_index, subpath, subpath_items_picked):
         if len(subpath) != len(subpath_items_picked):
             raise Exception("Tried to insert a path into the solution but length of new sites and length of items"
                             " picked did not match the path length")
-        pass
 
         for i in range(0, len(subpath)):
             self._path.insert(insertion_index + i, subpath[i])
             self._solution_states.insert(insertion_index + i, self.SolutionState())
-            current_state = self._solution_states[i]
+            self._solution_states[insertion_index + i].items_picked = subpath_items_picked[i]
 
-            if (insertion_index + i) == 0:
-                if subpath[0] != 0:
-                    raise Exception("Attempted to insert subpath at the beginning of the solution, but subpath"
-                                    " starts at site ", subpath[0], " and not at the base (site 0)")
-                if subpath_items_picked[0]:
-                    raise Exception("Attempted to insert subpath at the beginning of the solution, and items to be"
-                                    " picked were specified, which is not possible at the base (site 0)")
+        self._rectify_solution(start_idx=insertion_index + len(subpath))
+        return
 
-                current_state.items_picked = []
-                current_state.remaining_items_per_site = self._irp.get_items_at_each_site()
-                current_state.robot_cargo = []
-                current_state.accumulated_cost = 0
-            else:
-                prev_state = self._solution_states[insertion_index + i - 1]
-                current_state.items_picked = subpath_items_picked[i]
-                current_state.remaining_items_per_site = prev_state.remaining_items_per_site
+    # Updates remaining items, robot cargo and accumulated cost along the path, from "start_idx" to its end, according
+    # to the items picked at each node
+    def _rectify_solution(self, start_idx=0):
 
-                if subpath[i] == 0:
-                    if subpath_items_picked[i]:
-                        raise Exception("Attempted to insert subpath that picks up items at site 0")
-                    current_state.robot_cargo = []
-                else:
-                    for item_idx in subpath_items_picked[i]:
-                        current_state.robot_cargo.append(current_state.remaining_items_per_site[subpath[i]][item_idx])
-                        current_state.remaining_items_per_site[subpath[i]][item_idx] = 0
+        if start_idx == 0:
+            if self._solution_states[0].items_picked:
+                raise Exception("Attempt to pick up items at the base detected when rectifying the solution")
+            self._solution_states[0].remaining_items_per_site = self._irp.get_items_at_each_site()
+            self._solution_states[0].robot_cargo = []
+            self._solution_states[0].accumulated_cost = 0
+            start_idx += 1
 
-                try:
-                    current_state.accumulated_cost = prev_state.accumulated_cost \
-                                       + self._irp.get_cost_between_adjacent_sites(self._path[insertion_index + i - 1],
-                                                                                   self._path[insertion_index + i])
-                except TypeError():
-                    current_state.accumulated_cost = float('+inf')
-
-        # Propagate changes along the path after the insertion
-        for path_idx in range(insertion_index + len(subpath), len(self._path)):
+        for path_idx in range(start_idx, len(self._path)):
             prev_state = self._solution_states[path_idx - 1]
             current_state = self._solution_states[path_idx]
 
-            current_state.remaining_items_per_site = prev_state.remaining_items_per_site
+            # Update accumulated cost
+            cost_prev_current_sites = self._irp.get_cost_between_adjacent_sites(self._path[path_idx - 1],
+                                                                                self._path[path_idx])
+            if cost_prev_current_sites is None:
+                # Inserting unconnected sites results in infinite cost and in an invalid solution
+                current_state.accumulated_cost = float('+inf')
+            else:
+                current_state.accumulated_cost = prev_state.accumulated_cost + cost_prev_current_sites
 
+            # Update remaining items per site and the robot cargo
+            current_state.remaining_items_per_site = copy.deepcopy(prev_state.remaining_items_per_site)
             if self._path[path_idx] == 0:
                 current_state.robot_cargo = []
-                continue
+                if current_state.items_picked:
+                    raise Exception("Attempt to pick up items at the base detected when rectifying the solution")
+            else:
+                current_state.robot_cargo = prev_state.robot_cargo
+                # Some items may have already been picked up before, so this also removes items that were already picked
+                new_items_picked = []
+                for item_picked in current_state.items_picked:
+                    if current_state.remaining_items_per_site[self._path[path_idx]][item_picked] != 0:
+                        new_items_picked.append(item_picked)
+                        current_state.robot_cargo.append(current_state.remaining_items_per_site[self._path[path_idx]]
+                                                         [item_picked])
+                        current_state.remaining_items_per_site[self._path[path_idx]][item_picked] = 0
 
-            current_state.robot_cargo = prev_state.robot_cargo
+                current_state.items_picked = new_items_picked
 
-            new_items_picked = []
-            for item_picked in current_state.items_picked:
-                if current_state.remaining_items_per_site[self._path[path_idx]][item_picked] != 0:
-                    new_items_picked.append(item_picked)
-                    current_state.robot_cargo.append(current_state.remaining_items_per_site[self._path[path_idx]]
-                                                     [item_picked])
-                    current_state.remaining_items_per_site[self._path[path_idx]][item_picked] = 0
 
-            current_state.items_picked = new_items_picked
 
-    # TODO: WIP
-    # Updates remaining items, robot cargo and accumulated cost along the path, from "index" to its end
-    # Assumes that the items picked at each
-    def rectify_solution(self, index):
-        pass
