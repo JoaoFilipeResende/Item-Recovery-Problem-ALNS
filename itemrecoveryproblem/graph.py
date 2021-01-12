@@ -10,7 +10,7 @@ class Graph:
         self._edges = np.full((self._n_nodes, self._n_nodes), np.inf)
 
         self._items_at_nodes.append(None)
-        for node in range(1, self._n_nodes + 1):
+        for node in range(1, self._n_nodes):
             self._items_at_nodes.append([])
 
     def add_item_to_node(self, node, item_size):

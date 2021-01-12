@@ -2,6 +2,25 @@ import copy
 
 
 class Solution:
+    class SolutionState:
+
+        def __init__(self):
+            # A list of item (indexes) picked up at a given site. An empty list means no item is picked up
+            # These indexes correspond to the indexes of "ItemRecoveryProblem.get_items_at_each_site()"
+            self.items_picked = []
+
+            # A list containing lists of the item sizes at each site.
+            # Should always be the return of "ItemRecoveryProblem.get_items_at_each_site()" with zeros where items
+            # have been picked up
+            self.remaining_items_per_site = []
+
+            # A list containing the sizes of the items that the robot is carrying
+            self.robot_cargo = []
+
+            # A variable containing the accumulated cost of the path taken up to this point
+            self.accumulated_cost = 0
+
+    # Constructor creates first state at the base
     def __init__(self, item_recovery_problem):
 
         self._irp = item_recovery_problem
@@ -12,24 +31,7 @@ class Solution:
         # A list of solution states. Each state is *after* the robot picks up the items
         self._solution_states = []
 
-        class SolutionState:
-            def __init__(self):
-                # A list of item (indexes) picked up at a given site. An empty list means no item is picked up
-                # These indexes correspond to the indexes of "ItemRecoveryProblem.get_items_at_each_site()"
-                self.items_picked = []
-
-                # A list containing lists of the item sizes at each site.
-                # Should always be the return of "ItemRecoveryProblem.get_items_at_each_site()" with zeros where items
-                # have been picked up
-                self.remaining_items_per_site = []
-
-                # A list containing the sizes of the items that the robot is carrying
-                self.robot_cargo = []
-
-                # A variable containing the accumulated cost of the path taken up to this point
-                self.accumulated_cost = 0
-
-        first_state = SolutionState()
+        first_state = self.SolutionState()
         first_state.remaining_items_per_site = self._irp.get_items_at_each_site()
         first_state.accumulated_cost = 0
 
@@ -84,6 +86,21 @@ class Solution:
     def get_accumulated_cost_at_path_index(self, index):
         return self._solution_states[index].accumulated_cost
 
+    def append_subpath(self, subpath, subpath_items_picked):
+        if len(subpath) != len(subpath_items_picked):
+            raise Exception("Tried to append a path into the solution but length of new sites and length of items"
+                            " picked did not match the path length")
+
+        original_path_length = len(self._path)
+
+        for i in range(0, len(subpath)):
+            self._path.append(subpath[i])
+            self._solution_states.append(self.SolutionState())
+            self._solution_states[-1].items_picked = subpath_items_picked[i]
+
+        self._rectify_solution(start_idx=original_path_length)
+        return
+
     def insert_subpath(self, insertion_index, subpath, subpath_items_picked):
         if len(subpath) != len(subpath_items_picked):
             raise Exception("Tried to insert a path into the solution but length of new sites and length of items"
@@ -94,7 +111,7 @@ class Solution:
             self._solution_states.insert(insertion_index + i, self.SolutionState())
             self._solution_states[insertion_index + i].items_picked = subpath_items_picked[i]
 
-        self._rectify_solution(start_idx=insertion_index + len(subpath))
+        self._rectify_solution(start_idx=insertion_index)
         return
 
     # Updates remaining items, robot cargo and accumulated cost along the path, from "start_idx" to its end, according

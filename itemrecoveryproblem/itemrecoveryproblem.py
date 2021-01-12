@@ -7,7 +7,6 @@ class ItemRecoveryProblem:
     def __init__(self):
         self.graph = None
 
-        self.number_nodes = None
         self.robot_cargo_size = None
         self.items = None
         self.number_edges = None
