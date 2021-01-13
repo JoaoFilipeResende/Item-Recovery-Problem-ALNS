@@ -6,4 +6,5 @@ if __name__ == '__main__':
     irp.load_file("./instances/test_instance_2")
     alns = Alns(irp)
     solution = alns.solve()
-    print("end")
+    print(solution._path)
+    print(solution.check_validity())

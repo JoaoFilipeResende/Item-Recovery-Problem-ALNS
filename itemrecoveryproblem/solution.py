@@ -54,7 +54,7 @@ class Solution:
                 return False, idx
             # Check for valid connection between sites
             if idx != 0:
-                if self._irp.get_cost_between_adjacent_sites(self.path[idx - 1], self.path[idx]):
+                if self._irp.get_cost_between_adjacent_sites(self._path[idx - 1], self._path[idx]) == float("inf"):
                     return False, idx
 
         # At the end of the solution, no items can remain on any site

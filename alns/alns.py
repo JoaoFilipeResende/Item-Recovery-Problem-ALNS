@@ -29,7 +29,4 @@ class Alns:
                 for obj_idx in range(0, len(items[site_idx])):
                     subpath_items_picked[subpath_site_idx] = [obj_idx]
                     solution.append_subpath(subpath, subpath_items_picked)
-
-
-        print("lmao")
         return solution
