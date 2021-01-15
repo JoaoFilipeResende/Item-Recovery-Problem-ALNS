@@ -131,13 +131,13 @@ class Solution:
             current_state = self._solution_states[path_idx]
 
             # Update accumulated cost
-            cost_prev_current_sites = self._irp.get_cost_between_adjacent_sites(self._path[path_idx - 1],
+            cost_prev_current_site = self._irp.get_cost_between_adjacent_sites(self._path[path_idx - 1],
                                                                                 self._path[path_idx])
-            if cost_prev_current_sites is None:
+            if cost_prev_current_site is None:
                 # Inserting unconnected sites results in infinite cost and in an invalid solution
                 current_state.accumulated_cost = float('+inf')
             else:
-                current_state.accumulated_cost = prev_state.accumulated_cost + cost_prev_current_sites
+                current_state.accumulated_cost = prev_state.accumulated_cost + cost_prev_current_site
 
             # Update remaining items per site and the robot cargo
             current_state.remaining_items_per_site = copy.deepcopy(prev_state.remaining_items_per_site)
@@ -146,7 +146,7 @@ class Solution:
                 if current_state.items_picked:
                     raise Exception("Attempt to pick up items at the base detected when rectifying the solution")
             else:
-                current_state.robot_cargo = prev_state.robot_cargo
+                current_state.robot_cargo = copy.deepcopy(prev_state.robot_cargo)
                 # Some items may have already been picked up before, so this also removes items that were already picked
                 new_items_picked = []
                 for item_picked in current_state.items_picked:
