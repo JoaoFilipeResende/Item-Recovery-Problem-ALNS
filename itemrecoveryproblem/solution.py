@@ -1,7 +1,7 @@
 import copy
+from alns import State as AlnsState
 
-
-class Solution:
+class Solution(AlnsState):
     class SolutionState:
 
         def __init__(self):
@@ -22,7 +22,6 @@ class Solution:
 
     # Constructor creates first state at the base
     def __init__(self, item_recovery_problem):
-
         self._irp = item_recovery_problem
 
         # List of site indexes that the solution comprises
@@ -37,6 +36,12 @@ class Solution:
 
         self._solution_states.append(first_state)
 
+
+    def objective(self):
+        return self.get_cost()
+
+    def get_irp_instance(self):
+        return self._irp
     # Returns a tuple of (Bool, Int), where the "Bool" indicates if the solution is valid, and "Int" is the index of
     # the path where the first problem that makes the solution invalid occurs
     def check_validity(self):
