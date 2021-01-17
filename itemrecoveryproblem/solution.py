@@ -1,6 +1,7 @@
 import copy
 from alns import State as AlnsState
 
+
 class Solution(AlnsState):
     class SolutionState:
 
@@ -36,12 +37,13 @@ class Solution(AlnsState):
 
         self._solution_states.append(first_state)
 
-
+    # This function is required for the ALNS class to work
     def objective(self):
         return self.get_cost()
 
     def get_irp_instance(self):
         return self._irp
+
     # Returns a tuple of (Bool, Int), where the "Bool" indicates if the solution is valid, and "Int" is the index of
     # the path where the first problem that makes the solution invalid occurs
     def check_validity(self):
@@ -137,7 +139,7 @@ class Solution(AlnsState):
 
             # Update accumulated cost
             cost_prev_current_site = self._irp.get_cost_between_adjacent_sites(self._path[path_idx - 1],
-                                                                                self._path[path_idx])
+                                                                               self._path[path_idx])
             if cost_prev_current_site is None:
                 # Inserting unconnected sites results in infinite cost and in an invalid solution
                 current_state.accumulated_cost = float('+inf')
@@ -162,6 +164,3 @@ class Solution(AlnsState):
                         current_state.remaining_items_per_site[self._path[path_idx]][item_picked] = 0
 
                 current_state.items_picked = new_items_picked
-
-
-
