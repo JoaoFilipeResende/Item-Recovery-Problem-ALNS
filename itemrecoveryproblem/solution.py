@@ -32,7 +32,7 @@ class Solution(AlnsState):
         self._solution_states = []
 
         first_state = self.SolutionState()
-        first_state.remaining_items_per_site = self._irp.get_items_at_each_site()
+        first_state.remaining_items_per_site = self._irp.get_items_at_all_sites()
         first_state.accumulated_cost = 0
 
         self._solution_states.append(first_state)
@@ -90,8 +90,15 @@ class Solution(AlnsState):
     def get_robot_cargo_at_path_index(self, index):
         return self._solution_states[index].robot_cargo
 
+    def get_items_picked_up_at_path_index(self, index):
+        return self._solution_states[index].items_picked
+
     def get_accumulated_cost_at_path_index(self, index):
         return self._solution_states[index].accumulated_cost
+
+    def remove_picked_up_item_at_path_index(self, path_idx, item_idx):
+        self._solution_states[path_idx].items_picked.remove(item_idx)
+        self._rectify_solution(path_idx)
 
     def append_subpath(self, subpath, subpath_items_picked):
         if len(subpath) != len(subpath_items_picked):
@@ -128,7 +135,7 @@ class Solution(AlnsState):
         if start_idx == 0:
             if self._solution_states[0].items_picked:
                 raise Exception("Attempt to pick up items at the base detected when rectifying the solution")
-            self._solution_states[0].remaining_items_per_site = self._irp.get_items_at_each_site()
+            self._solution_states[0].remaining_items_per_site = self._irp.get_items_at_all_sites()
             self._solution_states[0].robot_cargo = []
             self._solution_states[0].accumulated_cost = 0
             start_idx += 1

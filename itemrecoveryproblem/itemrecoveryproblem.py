@@ -86,8 +86,11 @@ class ItemRecoveryProblem:
         for site in range(0, number_of_sites + 1):
             self.graph.add_edge(site, site, 0)
 
-    def get_items_at_each_site(self):
+    def get_items_at_all_sites(self):
         return self.graph.get_items_at_nodes()
+
+    def get_items_at_site(self, site_index):
+        return self.graph.get_items_at_nodes()[site_index]
 
     def get_robot_cargo_size(self):
         return self.robot_cargo_size
