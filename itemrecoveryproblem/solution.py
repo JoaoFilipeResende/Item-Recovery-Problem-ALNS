@@ -46,6 +46,7 @@ class Solution(AlnsState):
 
     # Returns a tuple of (Bool, Int), where the "Bool" indicates if the solution is valid, and "Int" is the index of
     # the path where the first problem that makes the solution invalid occurs
+    # If, along the path, there is an invalid transition from A to B, the returned index will be of A
     def check_validity(self):
         max_cargo = self._irp.get_robot_cargo_size()
 
@@ -60,8 +61,8 @@ class Solution(AlnsState):
             if sum(cargo_carried) > max_cargo:
                 return False, idx
             # Check for valid connection between sites
-            if idx != 0:
-                if self._irp.get_cost_between_adjacent_sites(self._path[idx - 1], self._path[idx]) == float("inf"):
+            if idx != (len(self._path)-1):
+                if self._irp.get_cost_between_adjacent_sites(self._path[idx], self._path[idx + 1]) == float("inf"):
                     return False, idx
 
         # At the end of the solution, no items can remain on any site
@@ -98,6 +99,11 @@ class Solution(AlnsState):
 
     def remove_picked_up_item_at_path_index(self, path_idx, item_idx):
         self._solution_states[path_idx].items_picked.remove(item_idx)
+        self._rectify_solution(path_idx)
+
+    def remove_path_index(self, path_idx):
+        self._path.pop(path_idx)
+        self._solution_states.pop(path_idx)
         self._rectify_solution(path_idx)
 
     def append_subpath(self, subpath, subpath_items_picked):

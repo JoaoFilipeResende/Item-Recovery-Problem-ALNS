@@ -30,11 +30,39 @@ def greedy_repair(solution, random_state):
     #    print("Warning: A valid solution was passed to the greedy_repair() method")
     #    return solution
 
-    # First, randomly remove items in subpaths until the carry weight is no longer exceeded in those subpaths
-    subpath_indexes = np.where(np.array(solution.get_path()) == 0)[0]
-    subpaths_to_check = np.where(subpath_indexes >= problem_index)[0]
-    max_cargo = solution.get_irp_instance().get_robot_cargo_size()
+    irp = solution.get_irp_instance()
 
+    # 1st step: truncate solution if it does not end at the base
+    while solution.get_path()[-1] != 0:
+        solution.remove_path_index(-1)
+
+    # 2nd step: repair path
+    idx = 0
+    while True:
+        path = solution.get_path()
+        if irp.get_cost_between_adjacent_sites(path[idx], path[idx + 1]) is None:
+            repair_subpath = irp.graph.shortest_path(path[idx], path[idx + 1])
+            repair_subpath.pop(0)
+            repair_subpath.pop()
+            repair_subpath_items_picked = []
+            for _ in repair_subpath:
+                repair_subpath_items_picked.append([])
+            solution.insert_subpath(idx+1, repair_subpath, repair_subpath_items_picked)
+        idx += 1
+        if idx == len(solution.get_path()):
+            break
+
+    # 3rd step, randomly remove items in subpaths until the carry weight is no longer exceeded in those subpaths
+    subpath_indexes = np.where(np.array(solution.get_path()) == 0)[0]
+    subpaths_to_check = []
+    for i in range(len(subpath_indexes)):
+        if subpath_indexes[i] >= problem_index:
+            subpaths_to_check.append(subpath_indexes[i])
+        elif subpath_indexes[i] <= problem_index < subpath_indexes[i+1]:
+            subpaths_to_check.append(subpath_indexes[i])
+
+    max_cargo = irp.get_robot_cargo_size()
+    # If the problem is at the end of the solution (i.e. not all items were picked), then this is ignored
     for i in range(len(subpaths_to_check) - 1):
         items_carried_at_subpath_end = solution.get_robot_cargo_at_path_index(subpaths_to_check[i + 1] - 1)
         cargo = sum(items_carried_at_subpath_end)
@@ -44,7 +72,7 @@ def greedy_repair(solution, random_state):
                 items_picked_up_at_path_idx = solution.get_items_picked_up_at_path_index(path_idx)
                 for j in range(len(items_picked_up_at_path_idx)):
                     item_index = items_picked_up_at_path_idx[j]
-                    item_weight = solution.get_irp_instance().get_items_at_site(solution.get_path[path_idx])[item_index]
+                    item_weight = irp.get_items_at_site(solution.get_path[path_idx])[item_index]
                     item_tuple_list.append((item_weight, item_index, path_idx))
 
             items_to_remove = []
@@ -54,7 +82,7 @@ def greedy_repair(solution, random_state):
             for item in items_to_remove:
                 solution.remove_picked_up_item_at_path_index(item[2], item[1])
 
-    # TODO: 2nd pass - for all remaining items, attempt zero-cost insertions
+    # TODO: 4th pass: for all remaining items, attempt zero-cost insertions
     items_remaining = solution.get_remaining_items_at_path_index(-1)
     for site_idx in range(len(items_remaining)):
         if items_remaining[site_idx]:
@@ -63,11 +91,9 @@ def greedy_repair(solution, random_state):
                     # Do insertion here
                     pass
 
-    # TODO: 3rd pass - randomly select a remaining item, append shortest path to it to the solution, and attempt
+    # TODO: 5th pass - randomly select a remaining item, append shortest path to it to the solution, and attempt
     #  zero-cost insertions of the other remaining items in this subpath
-
     items = solution.get_remaining_items_at_path_index(-1)
-    irp = solution.get_irp_instance()
     for site_idx in range(1, len(items)):
         if items[site_idx]:
             base_to_site = irp.graph.shortest_path(0, site_idx)
