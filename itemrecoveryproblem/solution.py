@@ -97,6 +97,11 @@ class Solution(AlnsState):
     def get_accumulated_cost_at_path_index(self, index):
         return self._solution_states[index].accumulated_cost
 
+    def add_picked_up_item_at_path_index(self, path_idx, item_idx):
+        if self._solution_states[path_idx].remaining_items_per_site[self._path[path_idx]][item_idx] != 0:
+            self._solution_states[path_idx].items_picked.append(item_idx)
+            self._rectify_solution(path_idx)
+
     def remove_picked_up_item_at_path_index(self, path_idx, item_idx):
         self._solution_states[path_idx].items_picked.remove(item_idx)
         self._rectify_solution(path_idx)
