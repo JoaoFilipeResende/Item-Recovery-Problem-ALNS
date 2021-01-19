@@ -37,9 +37,15 @@ class Solution(AlnsState):
 
         self._solution_states.append(first_state)
 
-    # This function is required for the ALNS class to work
+    # WARNING: This function is required for the ALNS class to work
     def objective(self):
         return self.get_cost()
+
+    # WARNING: This function is required for the ALNS class to work
+    def copy(self):
+        copy_sol = copy.deepcopy(self)
+        copy_sol._irp = self._irp
+        return copy_sol
 
     def get_irp_instance(self):
         return self._irp
@@ -54,7 +60,6 @@ class Solution(AlnsState):
         if self._path[0] != 0:
             return False, 0
 
-        # The robot can never carry more than the maximum cargo size
         for idx in range(len(self._path)):
             cargo_carried = self._solution_states[idx].robot_cargo
             # Check for cargo overload
