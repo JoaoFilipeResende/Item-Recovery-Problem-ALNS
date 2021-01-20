@@ -18,7 +18,7 @@ if __name__ == '__main__':
     alns.add_destroy_operator(remove_rand_parts)
     alns.add_destroy_operator(remove_rand_sps)
     alns.add_destroy_operator(remove_worst_sps)
-    #alns.add_destroy_operator(split_sps)
+    alns.add_destroy_operator(split_sps)
     #alns.add_destroy_operator(swap_sps)
     alns.add_repair_operator(greedy_repair)
 
@@ -27,7 +27,7 @@ if __name__ == '__main__':
     #criterion = HillClimbing()
     criterion = SimulatedAnnealing(100, 10, 5, method='linear')
     result = alns.iterate(initial_solution, [3, 2, 1, 0.5], 0.8,
-                          criterion, iterations=30, collect_stats=True)
+                          criterion, iterations=300, collect_stats=True)
     solution = result.best_state
     print("Best solution:", solution.objective())
 
