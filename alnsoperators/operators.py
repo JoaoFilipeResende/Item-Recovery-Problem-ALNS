@@ -32,7 +32,7 @@ def remove_rand_sps(solution, random_state):
     return solution
 
 
-# Remove between 10% and 60% of all subpaths ordered by (total item size retrieved in subpath) / (cost of subpath)
+# Remove between 10% and 60% of all subpaths ordered by (total item weight retrieved in subpath) / (cost of subpath)
 def remove_worst_sps(solution, random_state):
     solution = solution.copy()
     subpath_indexes = np.where(np.array(solution.get_path()) == 0)[0]
@@ -84,8 +84,45 @@ def swap_sps(solution, random_state):
     subpath_indexes = np.where(np.array(solution.get_path()) == 0)[0]
     num_subpaths_to_swap = int(0.20 * (len(subpath_indexes) - 1))
 
-    for _ in num_subpaths_to_swap:
+    for _ in range(num_subpaths_to_swap):
+        rand_idx_1 = random_state.randint(0, len(subpath_indexes) - 1)
+        subpath_1_size = subpath_indexes[rand_idx_1 + 1] - subpath_indexes[rand_idx_1]
+
+        rand_idx_2 = rand_idx_1
+        while rand_idx_2 == rand_idx_1:
+            rand_idx_2 = random_state.randint(0, len(subpath_indexes) - 1)
+
+        subpath_2_size = subpath_indexes[rand_idx_2 + 1] - subpath_indexes[rand_idx_2]
+
+        # Ensure that the subpath 2 is higher than 1
+        if rand_idx_2 < rand_idx_1:
+            rand_idx_1, rand_idx_2 = rand_idx_2, rand_idx_1
+            subpath_1_size, subpath_2_size = subpath_2_size, subpath_1_size
+
+        subpath_1 = []
+        subpath_2 = []
+        subpath_1_begin_idx = subpath_indexes[rand_idx_1]
+        subpath_2_begin_idx = subpath_indexes[rand_idx_2]
+        subpath_1_items_picked = []
+        subpath_2_items_picked = []
+
+        for i in range(subpath_1_size):
+            subpath_1.append(solution.get_path()[subpath_1_begin_idx + i])
+            subpath_1_items_picked.append(solution.get_items_picked_up_at_path_index(subpath_1_begin_idx + i))
+
+        for i in range(subpath_2_size):
+            subpath_2.append(solution.get_path()[subpath_2_begin_idx + i])
+            subpath_2_items_picked.append(solution.get_items_picked_up_at_path_index(subpath_2_begin_idx + i))
+
+        solution.remove_path_index_multiple(subpath_2_begin_idx, subpath_2_size)
+        solution.insert_subpath(subpath_2_begin_idx, subpath_1, subpath_1_items_picked)
+
+        solution.remove_path_index_multiple(subpath_1_begin_idx, subpath_1_size)
+        solution.insert_subpath(subpath_1_begin_idx, subpath_2, subpath_2_items_picked)
+
         subpath_indexes = np.where(np.array(solution.get_path()) == 0)[0]
+
+    return solution
 
 
 def greedy_repair(solution, random_state):

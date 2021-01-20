@@ -19,7 +19,7 @@ if __name__ == '__main__':
     alns.add_destroy_operator(remove_rand_sps)
     alns.add_destroy_operator(remove_worst_sps)
     alns.add_destroy_operator(split_sps)
-    #alns.add_destroy_operator(swap_sps)
+    alns.add_destroy_operator(swap_sps)
     alns.add_repair_operator(greedy_repair)
 
     initial_solution = greedy_repair(Solution(irp), random_state)
