@@ -21,7 +21,7 @@ def remove_rand_parts(solution, random_state):
 def remove_rand_sps(solution, random_state):
     solution = solution.copy()
     subpath_indexes = np.where(np.array(solution.get_path()) == 0)[0]
-    num_subpaths_to_remove = int(random_state.uniform(0.1, 0.6) * (len(subpath_indexes)-1))
+    num_subpaths_to_remove = int(random_state.uniform(0.1, 0.6) * (len(subpath_indexes) - 1))
 
     for _ in range(num_subpaths_to_remove):
         rand_idx = random_state.randint(0, len(subpath_indexes) - 1)
@@ -33,25 +33,55 @@ def remove_rand_sps(solution, random_state):
 
 
 # Orders subpaths by the normalized (total item size retrieved) / cost and
-def remove_sps_by_dispatch_rule(solution, random_state):
+def remove_worst_sps(solution, random_state):
+    solution = solution.copy()
+    subpath_indexes = np.where(np.array(solution.get_path()) == 0)[0]
+    num_subpaths_to_remove = int(random_state.uniform(0.1, 0.6) * (len(subpath_indexes) - 1))
+
+    for _ in range(num_subpaths_to_remove):
+        subpath_idx_worst = 0
+        subpath_worst = float('inf')
+
+        for idx in range(len(subpath_indexes) - 1):
+            subpath_value = solution.get_accumulated_cost_at_path_index(subpath_indexes[idx + 1]) - \
+                            solution.get_accumulated_cost_at_path_index(subpath_indexes[idx])
+            subpath_value = sum(solution.get_robot_cargo_at_path_index(subpath_indexes[idx + 1] - 1)) / subpath_value
+
+            if subpath_value < subpath_worst:
+                subpath_idx_worst = idx
+                subpath_worst = subpath_value
+
+        subpath_size = subpath_indexes[subpath_idx_worst + 1] - subpath_indexes[subpath_idx_worst]
+        solution.remove_path_index_multiple(subpath_indexes[subpath_idx_worst], subpath_size)
+        subpath_indexes = np.where(np.array(solution.get_path()) == 0)[0]
     return solution
 
 
 # Splits between 10% and 60% of all subpaths
 def split_sps(solution, random_state):
-    return solution
+    solution = solution.copy()
+    subpath_indexes = np.where(np.array(solution.get_path()) == 0)[0]
+    num_subpaths_to_split = int(random_state.uniform(0.1, 0.6) * (len(subpath_indexes) - 1))
+
+    for _ in num_subpaths_to_split:
+        subpath_indexes = np.where(np.array(solution.get_path()) == 0)[0]
 
 
-# Randomly swap subpaths
+# Randomly swap 20% of all subpaths
 def swap_sps(solution, random_state):
-    return solution
+    solution = solution.copy()
+    subpath_indexes = np.where(np.array(solution.get_path()) == 0)[0]
+    num_subpaths_to_swap = int(0.20 * (len(subpath_indexes) - 1))
+
+    for _ in num_subpaths_to_swap:
+        subpath_indexes = np.where(np.array(solution.get_path()) == 0)[0]
 
 
 def greedy_repair(solution, random_state):
     is_valid, problem_index = solution.check_validity()
 
     if is_valid:
-        print("Warning: A valid solution was passed to the greedy_repair() method")
+        #print("Warning: A valid solution was passed to the greedy_repair() method")
         return solution
 
     irp = solution.get_irp_instance()
@@ -136,7 +166,8 @@ def greedy_repair(solution, random_state):
                     # Try all candidates
                     while path_idx_insertion_candidates:
                         candidate_idx = path_idx_insertion_candidates.pop(random_state.randint(0,
-                                                                                    len(path_idx_insertion_candidates)))
+                                                                                               len(
+                                                                                                   path_idx_insertion_candidates)))
                         candidate_subpath_end_path_idx = 0
                         for i in range(0, len(subpath_indexes)):
                             if subpath_indexes[i] >= candidate_idx:
@@ -175,7 +206,7 @@ def greedy_repair(solution, random_state):
     while i < len(path):
         if path[i] == 0:
             items_were_picked = False
-            for j in range(subpath_begin, i+1):
+            for j in range(subpath_begin, i + 1):
                 if solution.get_items_picked_up_at_path_index(j):
                     items_were_picked = True
             if items_were_picked:
