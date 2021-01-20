@@ -116,6 +116,12 @@ class Solution(AlnsState):
         self._solution_states.pop(path_idx)
         self._rectify_solution(path_idx)
 
+    def remove_path_index_multiple(self, path_idx, n_sites_to_remove):
+        for _ in range(n_sites_to_remove):
+            self._path.pop(path_idx)
+            self._solution_states.pop(path_idx)
+        self._rectify_solution(path_idx)
+
     def append_subpath(self, subpath, subpath_items_picked):
         if len(subpath) != len(subpath_items_picked):
             raise Exception("Tried to append a path into the solution but length of new sites and length of items"
@@ -149,8 +155,11 @@ class Solution(AlnsState):
     def _rectify_solution(self, start_idx=0):
 
         if start_idx == 0:
+            if self._path[0] != 0:
+                raise Exception("Attempted to rectify a solution that does not start at the base when rectifying "
+                                "the solution")
             if self._solution_states[0].items_picked:
-                raise Exception("Attempt to pick up items at the base detected when rectifying the solution")
+                raise Exception("Attempted to pick up items at the base detected when rectifying the solution")
             self._solution_states[0].remaining_items_per_site = self._irp.get_items_at_all_sites()
             self._solution_states[0].robot_cargo = []
             self._solution_states[0].accumulated_cost = 0
@@ -174,7 +183,7 @@ class Solution(AlnsState):
             if self._path[path_idx] == 0:
                 current_state.robot_cargo = []
                 if current_state.items_picked:
-                    raise Exception("Attempt to pick up items at the base detected when rectifying the solution")
+                    raise Exception("Attempted to pick up items at the base detected when rectifying the solution")
             else:
                 current_state.robot_cargo = copy.deepcopy(prev_state.robot_cargo)
                 # Some items may have already been picked up before, so this also removes items that were already picked
