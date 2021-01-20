@@ -32,7 +32,7 @@ def remove_rand_sps(solution, random_state):
     return solution
 
 
-# Orders subpaths by the normalized (total item size retrieved) / cost and
+# Remove between 10% and 60% of all subpaths ordered by (total item size retrieved in subpath) / (cost of subpath)
 def remove_worst_sps(solution, random_state):
     solution = solution.copy()
     subpath_indexes = np.where(np.array(solution.get_path()) == 0)[0]
