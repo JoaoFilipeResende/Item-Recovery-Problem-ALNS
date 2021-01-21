@@ -14,6 +14,7 @@ def remove_rand_pos(solution, random_state):
         idx_to_remove = random_state.randint(1, len(solution.get_path()) - 1)
         solution.remove_path_index(idx_to_remove)
         positions_to_remove -= 1
+
     return solution
 
 
@@ -50,6 +51,9 @@ def remove_rand_sps(solution, random_state):
     subpath_indexes = np.where(np.array(solution.get_path()) == 0)[0]
     num_subpaths_to_remove = int(random_state.uniform(0.1, 0.6) * (len(subpath_indexes) - 1))
 
+    if (num_subpaths_to_remove < 1) and (len(solution.get_path()) > 1):
+        num_subpaths_to_remove = 1
+
     for _ in range(num_subpaths_to_remove):
         rand_idx = random_state.randint(0, len(subpath_indexes) - 1)
         subpath_size = subpath_indexes[rand_idx + 1] - subpath_indexes[rand_idx]
@@ -64,6 +68,9 @@ def remove_worst_sps(solution, random_state):
     solution = solution.copy()
     subpath_indexes = np.where(np.array(solution.get_path()) == 0)[0]
     num_subpaths_to_remove = int(random_state.uniform(0.1, 0.6) * (len(subpath_indexes) - 1))
+
+    if (num_subpaths_to_remove < 1) and (len(solution.get_path()) > 1):
+        num_subpaths_to_remove = 1
 
     for _ in range(num_subpaths_to_remove):
         subpath_idx_worst = 0
@@ -81,6 +88,7 @@ def remove_worst_sps(solution, random_state):
         subpath_size = subpath_indexes[subpath_idx_worst + 1] - subpath_indexes[subpath_idx_worst]
         solution.remove_path_index_multiple(subpath_indexes[subpath_idx_worst], subpath_size)
         subpath_indexes = np.where(np.array(solution.get_path()) == 0)[0]
+
     return solution
 
 
@@ -228,23 +236,21 @@ def greedy_repair(solution, random_state):
 
     # 6th pass: remove empty subpaths
     i = 0
-    path = solution.get_path()
-    solu_before = solution.copy()
-    while i < len(path) - 1:
-        if path[i] == 0:
-            items_were_picked = False
-            j = i + 1
-            while path[j] != 0:
-                if solution.get_items_picked_up_at_path_index(j):
-                    items_were_picked = True
-                    j += 1
-                    break
-                j += 1
-            if items_were_picked:
-                i = deepcopy(j)
-            else:
-                positions_to_delete = j - i
-                solution.remove_path_index_multiple(i, positions_to_delete)
-        i += 1
+    j = 0
+    while i < len(solution.get_path()) - 1:
+        items_were_picked = False
+        j = i + 1
+        while solution.get_path()[j] != 0:
+            if solution.get_items_picked_up_at_path_index(j):
+                items_were_picked = True
+            j += 1
+        if items_were_picked:
+            i = deepcopy(j)  # Skip to the next subpath
+        else:
+            positions_to_delete = j - i
+            solution.remove_path_index_multiple(i, positions_to_delete)
+
+    if not (solution.check_validity()[0]) or (solution.get_cost() == float("inf")):
+        raise Exception("Greedy repair failed")
 
     return solution

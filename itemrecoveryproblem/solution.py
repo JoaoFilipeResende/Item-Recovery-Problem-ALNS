@@ -67,7 +67,7 @@ class Solution(AlnsState):
                 return False, idx
             # Check for valid connection between sites
             if idx != (len(self._path)-1):
-                if self._irp.get_cost_between_adjacent_sites(self._path[idx], self._path[idx + 1]) == float("inf"):
+                if self._irp.get_cost_between_adjacent_sites(self._path[idx], self._path[idx + 1]) is None:
                     return False, idx
 
         # At the end of the solution, no items can remain on any site
@@ -105,7 +105,6 @@ class Solution(AlnsState):
     def add_picked_up_item_at_path_index(self, path_idx, item_idx):
         if path_idx < 0:
             path_idx = len(self._path) + path_idx
-
         if self._solution_states[path_idx].remaining_items_per_site[self._path[path_idx]][item_idx] != 0:
             self._solution_states[path_idx].items_picked.append(item_idx)
             self._rectify_solution(path_idx)
@@ -113,16 +112,15 @@ class Solution(AlnsState):
     def remove_picked_up_item_at_path_index(self, path_idx, item_idx):
         if path_idx < 0:
             path_idx = len(self._path) + path_idx
-
         self._solution_states[path_idx].items_picked.remove(item_idx)
-        self._rectify_solution(path_idx-1)
+        self._rectify_solution(path_idx)
 
     def remove_path_index(self, path_idx):
         if path_idx < 0:
             path_idx = len(self._path) + path_idx
         self._path.pop(path_idx)
         self._solution_states.pop(path_idx)
-        self._rectify_solution(path_idx-1)
+        self._rectify_solution(path_idx)
 
     def remove_path_index_multiple(self, path_idx, n_sites_to_remove):
         if path_idx < 0:
@@ -130,7 +128,7 @@ class Solution(AlnsState):
         for _ in range(n_sites_to_remove):
             self._path.pop(path_idx)
             self._solution_states.pop(path_idx)
-        self._rectify_solution(path_idx-1)
+        self._rectify_solution(path_idx)
 
     def append_subpath(self, subpath, subpath_items_picked):
         if len(subpath) != len(subpath_items_picked):

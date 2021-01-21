@@ -12,7 +12,7 @@ if __name__ == '__main__':
     random_state = rnd.RandomState(seed)
 
     irp = ItemRecoveryProblem()
-    irp.load_file("./instances/test_instance")
+    irp.load_file("./instances/test_instance_2")
 
     alns = ALNS(random_state)
     alns.add_destroy_operator(remove_rand_pos)
@@ -27,7 +27,7 @@ if __name__ == '__main__':
     #criterion = HillClimbing()
     criterion = SimulatedAnnealing(100, 10, 5, method='linear')
     result = alns.iterate(initial_solution, [3, 2, 1, 0.5], 0.8,
-                          criterion, iterations=100, collect_stats=True)
+                          criterion, iterations=10000, collect_stats=True)
     solution = result.best_state
     print("Best solution:", solution.objective())
     print("Is it valid?", solution.check_validity())
