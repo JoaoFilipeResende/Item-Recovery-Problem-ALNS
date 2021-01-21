@@ -3,7 +3,7 @@ from copy import deepcopy
 
 
 # Randomly remove between 10% and 60% of all positions along the path
-def remove_rand_parts(solution, random_state):
+def remove_rand_pos(solution, random_state):
     solution = solution.copy()
     positions_to_remove = int(random_state.uniform(0.1, 0.6) * len(solution.get_path()))
 
@@ -14,6 +14,33 @@ def remove_rand_parts(solution, random_state):
         idx_to_remove = random_state.randint(1, len(solution.get_path()) - 1)
         solution.remove_path_index(idx_to_remove)
         positions_to_remove -= 1
+    return solution
+
+
+# Randomly swap 20% of all positions along the path
+def swap_rand_pos(solution, random_state):
+    solution = solution.copy()
+    num_pos_to_swap = int(0.20 * (len(solution.get_path())))
+
+    for _ in range(num_pos_to_swap):
+        pos_1_idx = random_state.randint(1, len(solution.get_path()) - 1)
+        pos_2_idx = random_state.randint(1, len(solution.get_path()) - 1)
+
+        # Ensure that the pos 2 is higher than 1
+        if pos_2_idx < pos_1_idx:
+            pos_1_idx, pos_2_idx = pos_2_idx, pos_1_idx
+
+        pos_1_items = solution.get_items_picked_up_at_path_index(pos_1_idx)
+        pos_2_items = solution.get_items_picked_up_at_path_index(pos_2_idx)
+
+        pos_1_site = solution.get_path()[pos_1_idx]
+        pos_2_site = solution.get_path()[pos_2_idx]
+
+        solution.remove_path_index(pos_1_idx)
+        solution.remove_path_index(pos_2_idx)
+        solution.insert_subpath(pos_1_idx, [pos_2_site], [pos_2_items])
+        solution.insert_subpath(pos_2_idx, [pos_1_site], [pos_1_items])
+
     return solution
 
 
@@ -78,64 +105,16 @@ def split_sps(solution, random_state):
     return solution
 
 
-# Randomly swap 20% of all subpaths
-def swap_sps(solution, random_state):
-    solution = solution.copy()
-    subpath_indexes = np.where(np.array(solution.get_path()) == 0)[0]
-    num_subpaths_to_swap = int(0.20 * (len(subpath_indexes) - 1))
-
-    for _ in range(num_subpaths_to_swap):
-        rand_idx_1 = random_state.randint(0, len(subpath_indexes) - 1)
-        subpath_1_size = subpath_indexes[rand_idx_1 + 1] - subpath_indexes[rand_idx_1]
-
-        rand_idx_2 = rand_idx_1
-        while rand_idx_2 == rand_idx_1:
-            rand_idx_2 = random_state.randint(0, len(subpath_indexes) - 1)
-
-        subpath_2_size = subpath_indexes[rand_idx_2 + 1] - subpath_indexes[rand_idx_2]
-
-        # Ensure that the subpath 2 is higher than 1
-        if rand_idx_2 < rand_idx_1:
-            rand_idx_1, rand_idx_2 = rand_idx_2, rand_idx_1
-            subpath_1_size, subpath_2_size = subpath_2_size, subpath_1_size
-
-        subpath_1 = []
-        subpath_2 = []
-        subpath_1_begin_idx = subpath_indexes[rand_idx_1]
-        subpath_2_begin_idx = subpath_indexes[rand_idx_2]
-        subpath_1_items_picked = []
-        subpath_2_items_picked = []
-
-        for i in range(subpath_1_size):
-            subpath_1.append(solution.get_path()[subpath_1_begin_idx + i])
-            subpath_1_items_picked.append(solution.get_items_picked_up_at_path_index(subpath_1_begin_idx + i))
-
-        for i in range(subpath_2_size):
-            subpath_2.append(solution.get_path()[subpath_2_begin_idx + i])
-            subpath_2_items_picked.append(solution.get_items_picked_up_at_path_index(subpath_2_begin_idx + i))
-
-        solution.remove_path_index_multiple(subpath_2_begin_idx, subpath_2_size)
-        solution.insert_subpath(subpath_2_begin_idx, subpath_1, subpath_1_items_picked)
-
-        solution.remove_path_index_multiple(subpath_1_begin_idx, subpath_1_size)
-        solution.insert_subpath(subpath_1_begin_idx, subpath_2, subpath_2_items_picked)
-
-        subpath_indexes = np.where(np.array(solution.get_path()) == 0)[0]
-
-    return solution
-
-
 def greedy_repair(solution, random_state):
     is_valid, problem_index = solution.check_validity()
 
     if is_valid:
         #print("Warning: A valid solution was passed to the greedy_repair() method")
         return solution
-
     irp = solution.get_irp_instance()
 
     # 1st step: fix beginning and end of the solution
-    # Fix beggining of the solution
+    # Fix beginning of the solution
     if solution.get_path()[0] != 0:
         solution.insert_subpath(0, [0], [[0]])
 
@@ -248,20 +227,24 @@ def greedy_repair(solution, random_state):
         solution.append_subpath(subpath, subpath_items_picked)
 
     # 6th pass: remove empty subpaths
-    i = 1
-    subpath_begin = 0
+    i = 0
     path = solution.get_path()
-    while i < len(path):
+    solu_before = solution.copy()
+    while i < len(path) - 1:
         if path[i] == 0:
             items_were_picked = False
-            for j in range(subpath_begin, i + 1):
+            j = i + 1
+            while path[j] != 0:
                 if solution.get_items_picked_up_at_path_index(j):
                     items_were_picked = True
+                    j += 1
+                    break
+                j += 1
             if items_were_picked:
-                subpath_begin = i
+                i = deepcopy(j)
             else:
-                positions_to_delete = i - subpath_begin
-                solution.remove_path_index_multiple(subpath_begin, positions_to_delete)
-                i = subpath_begin
+                positions_to_delete = j - i
+                solution.remove_path_index_multiple(i, positions_to_delete)
         i += 1
+
     return solution
