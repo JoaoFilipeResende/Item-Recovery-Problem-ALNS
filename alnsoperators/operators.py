@@ -23,6 +23,9 @@ def swap_rand_pos(solution, random_state):
     solution = solution.copy()
     num_pos_to_swap = int(0.20 * (len(solution.get_path())))
 
+    if num_pos_to_swap < 1:
+        num_pos_to_swap = 1
+
     for _ in range(num_pos_to_swap):
         pos_1_idx = random_state.randint(1, len(solution.get_path()) - 1)
         pos_2_idx = random_state.randint(1, len(solution.get_path()) - 1)
