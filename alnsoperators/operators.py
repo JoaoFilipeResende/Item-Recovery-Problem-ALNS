@@ -95,27 +95,6 @@ def remove_worst_sps(solution, random_state):
     return solution
 
 
-# Splits between 10% and 60% of all subpaths
-def split_sps(solution, random_state):
-    solution = solution.copy()
-    subpath_indexes = np.where(np.array(solution.get_path()) == 0)[0]
-    num_subpaths_to_split = int(random_state.uniform(0.1, 0.6) * (len(subpath_indexes) - 1))
-
-    for _ in range(num_subpaths_to_split):
-        rand_idx = random_state.randint(0, len(subpath_indexes) - 1)
-        subpath_size = subpath_indexes[rand_idx + 1] - subpath_indexes[rand_idx]
-
-        if subpath_size <= 3:
-            continue
-
-        # The +2 here is important to ensure that a split doesn't generate two consecutive zeros
-        idx_to_split = random_state.randint(subpath_indexes[rand_idx] + 2, subpath_indexes[rand_idx + 1])
-        solution.insert_subpath(idx_to_split, [0], [[]])
-        subpath_indexes = np.where(np.array(solution.get_path()) == 0)[0]
-
-    return solution
-
-
 def greedy_repair(solution, random_state):
     is_valid, problem_index = solution.check_validity()
 
