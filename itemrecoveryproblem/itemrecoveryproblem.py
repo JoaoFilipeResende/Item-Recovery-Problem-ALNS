@@ -37,7 +37,7 @@ class ItemRecoveryProblem:
         for x in range(0, sites_with_items):
             line = file[file_idx + x]
 
-            if not re.match(r"\d:(\d+)(,\d+)*$", line):
+            if not re.match(r"(\d+):(\d+)(,\d+)*$", line):
                 raise Exception('Please specify the items at each site with the following format: "x: a,b,c,...",'
                                 ' where x is the site and a,b,c... are the sizes of the items at that site')
 

@@ -4,6 +4,7 @@ from copy import deepcopy
 
 # Randomly remove between 10% and 60% of all positions along the path
 def remove_rand_pos(solution, random_state):
+    print("entered remove_rand_pos")
     solution = solution.copy()
     positions_to_remove = int(random_state.uniform(0.1, 0.6) * len(solution.get_path()))
 
@@ -15,11 +16,13 @@ def remove_rand_pos(solution, random_state):
         solution.remove_path_index(idx_to_remove)
         positions_to_remove -= 1
 
+    print("ended remove_rand_pos")
     return solution
 
 
 # Randomly swap 20% of all positions along the path
 def swap_rand_pos(solution, random_state):
+    print("entered swap_rand_pos")
     solution = solution.copy()
     num_pos_to_swap = int(0.20 * (len(solution.get_path())))
 
@@ -45,11 +48,13 @@ def swap_rand_pos(solution, random_state):
         solution.insert_subpath(pos_1_idx, [pos_2_site], [pos_2_items])
         solution.insert_subpath(pos_2_idx, [pos_1_site], [pos_1_items])
 
+    print("ended swap_rand_pos")
     return solution
 
 
 # Randomly removes between 10% and 60% of all subpaths in the solution
 def remove_rand_sps(solution, random_state):
+    print("entered remove_rand_sps")
     solution = solution.copy()
     subpath_indexes = np.where(np.array(solution.get_path()) == 0)[0]
     num_subpaths_to_remove = int(random_state.uniform(0.1, 0.6) * (len(subpath_indexes) - 1))
@@ -63,11 +68,13 @@ def remove_rand_sps(solution, random_state):
         solution.remove_path_index_multiple(subpath_indexes[rand_idx], subpath_size)
         subpath_indexes = np.where(np.array(solution.get_path()) == 0)[0]
 
+    print("ended remove_rand_sps")
     return solution
 
 
 # Remove between 10% and 60% of all subpaths ordered by (total item weight retrieved in subpath) / (cost of subpath)
 def remove_worst_sps(solution, random_state):
+    print("entered remove_worst_sps")
     solution = solution.copy()
     subpath_indexes = np.where(np.array(solution.get_path()) == 0)[0]
     num_subpaths_to_remove = int(random_state.uniform(0.1, 0.6) * (len(subpath_indexes) - 1))
@@ -92,17 +99,20 @@ def remove_worst_sps(solution, random_state):
         solution.remove_path_index_multiple(subpath_indexes[subpath_idx_worst], subpath_size)
         subpath_indexes = np.where(np.array(solution.get_path()) == 0)[0]
 
+    print("ended remove_worst_sps")
     return solution
 
 
 def greedy_repair(solution, random_state):
+    print("entered greedy_repair")
     is_valid, problem_index = solution.check_validity()
 
     if is_valid:
-        #print("Warning: A valid solution was passed to the greedy_repair() method")
+        print("Warning: A valid solution was passed to the greedy_repair() method")
         return solution
     irp = solution.get_irp_instance()
 
+    print("1st")
     # 1st step: fix beginning and end of the solution
     # Fix beginning of the solution
     if solution.get_path()[0] != 0:
@@ -112,6 +122,7 @@ def greedy_repair(solution, random_state):
     while solution.get_path()[-1] != 0:
         solution.remove_path_index(-1)
 
+    print("2nd")
     # 2nd step: repair path by joining "broken" transitions with the shortest path between them, and join
     # repeated transitions
     if len(solution.get_path()) > 1:
@@ -136,6 +147,7 @@ def greedy_repair(solution, random_state):
             if idx == len(solution.get_path()) - 1:
                 break
 
+    print("3rd")
     # 3rd step, randomly remove items in subpaths until the carry weight is no longer exceeded in those subpaths
     subpath_indexes = np.where(np.array(solution.get_path()) == 0)[0]
     subpaths_to_check = []
@@ -169,6 +181,7 @@ def greedy_repair(solution, random_state):
             for item in items_to_remove:
                 solution.remove_picked_up_item_at_path_index(item[2], item[1])
 
+    print("4th")
     # 4th pass: for all remaining items, attempt zero-cost insertions
     items_remaining = solution.get_remaining_items_at_path_index(-1)
     for site in range(1, len(items_remaining)):
@@ -196,6 +209,7 @@ def greedy_repair(solution, random_state):
                             solution.add_picked_up_item_at_path_index(candidate_idx, obj_idx)
                             break
 
+    print("5th")
     # 5th pass - randomly select a remaining item, append shortest path to it to the solution
     # TODO: maybe attempt zero-cost insertions of the other remaining items in each newly appended subpath?
     items = solution.get_remaining_items_at_path_index(-1)
@@ -216,6 +230,7 @@ def greedy_repair(solution, random_state):
         subpath_items_picked[len(base_to_site) - 2] = [item[1]]
         solution.append_subpath(subpath, subpath_items_picked)
 
+    print("6th")
     # 6th pass: remove empty subpaths
     i = 0
     j = 0
@@ -235,4 +250,5 @@ def greedy_repair(solution, random_state):
     if not (solution.check_validity()[0]) or (solution.get_cost() == float("inf")):
         raise Exception("Greedy repair failed")
 
+    print("ended greedy_repair")
     return solution

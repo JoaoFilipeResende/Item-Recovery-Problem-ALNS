@@ -65,3 +65,33 @@ class Graph:
             path.append(prev[path[-1]])
         path.reverse()
         return path
+
+    def print_graph(self, cargo_size):
+        sites_with_items = 0
+        num_of_paths = 0
+
+        output = "Sites: " + str(self._n_nodes - 1) + "\n"
+        output += "CargoSize: " + str(cargo_size) + "\n"
+
+        str_items = ""
+        for node in range(1, self._n_nodes):
+            if self._items_at_nodes[node]:
+                str_items += str(node) + ": "
+                sites_with_items += 1
+                for item in self._items_at_nodes[node]:
+                    str_items += str(item) + ","
+                str_items = str_items[:-1] + "\n"
+
+        str_path = ""
+        for node_a in range(self._n_nodes):
+            for node_b in range(node_a, self._n_nodes):
+                if self.edge_exists(node_a,node_b):
+                    num_of_paths += 1
+                    str_path += str(node_a) + "," + str(node_b) + ": " + str(int(self.get_edge_cost(node_a,node_b))) + "\n"
+
+        str_num_of_paths = "Paths: " + str(num_of_paths) + "\n"
+        output += "SitesWithItems: " + str(sites_with_items) + "\n"
+
+        output += str_items + str_num_of_paths + str_path
+
+        return output
