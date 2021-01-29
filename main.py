@@ -10,7 +10,7 @@ import sys
 
 seed = 12345
 iterations = 200
-instance_to_run = 0  # Only used when not run with command line arguments
+instance_to_run = 9  # Only used when not run with command line arguments
 
 if __name__ == '__main__':
     random_state = rnd.RandomState(seed)
