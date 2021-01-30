@@ -38,7 +38,7 @@ if __name__ == '__main__':
     criterion = SimulatedAnnealing(100, 5, 5, method='linear')
     start_time = time.time()
     result = alns.iterate(initial_solution, [3, 2, 1, 0.5], 0.8,
-                          criterion, iterations=iterations, collect_stats=False)
+                          criterion, iterations=iterations, collect_stats=True)
     end_time = time.time()
     solution = result.best_state
     print("Best solution:", int(solution.objective()))
