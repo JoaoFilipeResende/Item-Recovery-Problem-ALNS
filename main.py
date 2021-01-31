@@ -4,16 +4,19 @@ import numpy.random as rnd
 from alns import ALNS
 from alns.criteria import HillClimbing, SimulatedAnnealing
 from alnsoperators.operators import *
+import matplotlib
 import matplotlib.pyplot as plt
 import time
 import sys
 
 seed = 12345
 iterations = 200
-instance_to_run = 9  # Only used when not run with command line arguments
+instance_to_run = 1  # Only used when not run with command line arguments
 
 if __name__ == '__main__':
     random_state = rnd.RandomState(seed)
+
+    matplotlib.use('TkAgg')
 
     irp = ItemRecoveryProblem()
     try:
@@ -44,10 +47,10 @@ if __name__ == '__main__':
     print("Best solution:", int(solution.objective()))
     print("Time taken (s):", int(end_time - start_time))
     print("Iterations:", iterations)
-    #_, ax = plt.subplots(figsize=(12, 6))
-    #result.plot_objectives(ax=ax, lw=2)
-    #figure = plt.figure("operator_counts", figsize=(14, 6))
-    #figure.subplots_adjust(bottom=0.15, hspace=.5)
-    #result.plot_operator_counts(figure=figure, title="Operator diagnostics", legend=["Best", "Better", "Accepted"])
+    _, ax = plt.subplots(figsize=(12, 6))
+    result.plot_objectives(ax=ax, lw=2)
+    figure = plt.figure("method_counts", figsize=(14, 6))
+    figure.subplots_adjust(bottom=0.15, hspace=.5)
+    result.plot_operator_counts(figure=figure, title="Method diagnostics", legend=["Best", "Better", "Accepted"])
 
     print("Is best solution valid?", solution.check_validity()[0])
