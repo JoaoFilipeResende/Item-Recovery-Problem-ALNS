@@ -1,6 +1,8 @@
 # Item-Recovery-Problem-ALNS
 This repository contains the source code for an ALNS-based optimization technique for the "Item Recovery Problem", which is an optimization problem where an AUV with a maximum carry weight must visit multiple sites and recover items (i.e. bring them to a "base site") of different weights.
 
+Report: ![Example of the item recovery problem.](https://github.com/rereee3/Item-Recovery-Problem-ALNS/blob/master/report/report.pdf)
+
 # Problem Statement
 
 The following image illustrates a possible scenario of this problem, where an AUV is used to recover items from an underwater cave.
@@ -28,8 +30,6 @@ The corresponding weighted graph for this scenario is shown in the following ima
   
   ![Remove Worst Subpaths.](https://github.com/rereee3/Item-Recovery-Problem-ALNS/blob/master/report/src/Figures/destruction/remove_worst_sps.svg)
 - 6 Repair Method
-- Initial Solution
-- Acceptance Criteria
 
 # Results
 
