@@ -27,13 +27,7 @@ The corresponding weighted graph for this scenario is shown in the following ima
   - Remove Worst Subpaths
   
   ![Remove Worst Subpaths.](https://github.com/rereee3/Item-Recovery-Problem-ALNS/blob/master/report/src/Figures/destruction/remove_worst_sps.svg)
-- Repain Method
-  - First Step
-  - Second Step
-  - Third Step
-  - Fourth Step
-  - Fifth Step
-  - Sixth Step
+- 6 Repair Method
 - Initial Solution
 - Acceptance Criteria
 
