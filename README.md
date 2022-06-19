@@ -74,4 +74,4 @@ Optimization Results:
 | 12  | 10.5 h    | 20932  | 6192 | 
 | 13  | 51.6 h   | 35946  | 23444 | 
 
-Note: Apologies for dark mode users.
+Note: Apologies to dark mode users.
