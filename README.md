@@ -7,6 +7,8 @@ Dependencies: ``numpy`` and the ``alns`` package (see https://pypi.org/project/a
 
 How to cite: see issue https://github.com/JoaoFilipeResende/Item-Recovery-Problem-ALNS/issues/1
 
+Note that our images have transparent background. Apologies to dark mode users.
+
 # Problem Statement
 
 The following image illustrates a possible scenario of this problem, where an AUV is used to recover items from an underwater cave.
@@ -38,7 +40,7 @@ The corresponding weighted graph for this scenario is shown in the following ima
 
 # Results
 
-Dataset used:
+Datasets used:
 
 | Instance      | Sites | Sites With Items | Cargo Size | Graph Edges |
 | ------------- | ------------- | ------------- | ------------- | ------------- |
@@ -58,8 +60,11 @@ Dataset used:
 
 Optimization Results:
 
+- Metrics for first instance
+
 ![Optimization Results.](https://github.com/rereee3/Item-Recovery-Problem-ALNS/blob/master/report/src/Figures/instance_1_methods.svg)
 
+- Table containing results for all instances
 
 | Instance      | Time Taken | Initial Cost | Best Cost |
 | ------------- | ------------- | ------------- | ------------- |
@@ -77,4 +82,4 @@ Optimization Results:
 | 12  | 10.5 h    | 20932  | 6192 | 
 | 13  | 51.6 h   | 35946  | 23444 | 
 
-Note: Apologies to dark mode users.
+
