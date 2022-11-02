@@ -4,6 +4,8 @@ This repository contains the source code for an ALNS-based optimization techniqu
 Report: [Item Recovery Problem
 An ALNS-based Approach](https://github.com/rereee3/Item-Recovery-Problem-ALNS/blob/master/report/report.pdf)
 
+Dependencies: ``numpy`` and the ``alns`` package (see https://pypi.org/project/alns/)
+
 # Problem Statement
 
 The following image illustrates a possible scenario of this problem, where an AUV is used to recover items from an underwater cave.
