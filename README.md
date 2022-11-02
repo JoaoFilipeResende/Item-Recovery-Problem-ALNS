@@ -17,10 +17,9 @@ The corresponding weighted graph for this scenario is shown in the following ima
 
 ![Weighted graph of the example scenario.](https://github.com/rereee3/Item-Recovery-Problem-ALNS/blob/master/report/src/Figures/weighted_graph_example.svg)
 
-# Optimization Technique
+# ALNS - Methods used
 
-- ALNS Heuristic
-- Destruction Method
+- Destruction Methods
   - Random Position Removal
   
   ![Random Position Removal.](https://github.com/rereee3/Item-Recovery-Problem-ALNS/blob/master/report/src/Figures/destruction/remove_rand_pos.svg)
@@ -33,7 +32,9 @@ The corresponding weighted graph for this scenario is shown in the following ima
   - Remove Worst Subpaths
   
   ![Remove Worst Subpaths.](https://github.com/rereee3/Item-Recovery-Problem-ALNS/blob/master/report/src/Figures/destruction/remove_worst_sps.svg)
-- 6 Repair Method
+
+- Repair Method
+  - See report
 
 # Results
 
@@ -59,7 +60,6 @@ Optimization Results:
 
 ![Optimization Results.](https://github.com/rereee3/Item-Recovery-Problem-ALNS/blob/master/report/src/Figures/instance_1_methods.svg)
 
-Optimization Results:
 
 | Instance      | Time Taken | Initial Cost | Best Cost |
 | ------------- | ------------- | ------------- | ------------- |
